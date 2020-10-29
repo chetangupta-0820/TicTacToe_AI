@@ -132,24 +132,33 @@ def utility(board):
     else:
         return 0
 
-def max_value(board):
+
+def max_value(board,alpha,beta):
     if terminal(board):
         return utility(board)
 
     temp = -math.inf
     for action in actions(board):
-        temp = max(temp,min_value(result(board,action)))
+        temp = max(temp,min_value(result(board,action),alpha,beta))
+        alpha = max(alpha, temp)
+
+        if alpha >= beta:
+            break
 
     return temp
 
 
-def min_value(board):
+def min_value(board,alpha,beta):
     if terminal(board):
         return utility(board)
 
     temp = math.inf
     for action in actions(board):
-        temp = min(temp, max_value(result(board, action)))
+        temp = min(temp, max_value(result(board,action),alpha,beta))
+        beta = min(beta, temp)
+
+        if alpha >= beta:
+            break
 
     return temp
 
@@ -163,19 +172,27 @@ def minimax(board):
 
     cur_player = player(board)
     optimum_move = None
+
+    alpha = -math.inf
+    beta = math.inf
+
     if cur_player == X:
-        score = -math.inf
+        v = -math.inf
         for action in actions(board):
-            v = min_value(result(board,action))
-            if v >= score:
-                score=v
+            new_v = min_value(result(board,action),alpha,beta)
+            alpha = max(v, new_v)
+
+            if new_v >= v:
+                v=new_v
                 optimum_move = action
     else:
-        score = math.inf
+        v = math.inf
         for action in actions(board):
-            v = max_value(result(board,action))
-            if v <= score:
-                score=v
+            new_v = max_value(result(board,action),alpha,beta)
+            beta = min(new_v, v)
+
+            if new_v <= v:
+                v=new_v
                 optimum_move = action
 
     return optimum_move
